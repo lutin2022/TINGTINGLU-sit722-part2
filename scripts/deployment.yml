@@ -1,1 +1,39 @@
 # Write Kubernetes Deployment Script
+apiVersion: apps/v1
+# the Kubernetes deployment keeps the microservice alive
+kind: Deployment 
+# the name of the deployment
+metadata:
+  name: book-catalog 
+spec:
+  replicas: 1 #  the deployment keeps the single replica of the microservice running
+  selector:
+    matchLabels:
+      app: book-catalog
+  # the template for the pod that used to host the microservice
+  template: 
+    metadata:
+      labels:
+        app: book-catalog 
+    spec:
+      containers:
+      - name: book-catalog
+        image: lutin/book-catalog:v1.0 # specify the use of image to instantiate the container
+        ports:
+        - containerPort: 8000
+        # set environment variables 
+        env: 
+        - name: DATABASE_URL
+          value: postgresql://tingtinglu_sit722_part2_user:PwmN7M1Kh4cVHl287BWNqXDA4llMPaM4@dpg-cr5tl2d2ng1s739b04rg-a.oregon-postgres.render.com/tingtinglu_sit722_part2
+          
+# create the Kubernetes services that created the DNS record and expose the microservice to HTTP REQUESTS
+kind: Service 
+metadata:
+  name: book-catalog-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: book-catalog
